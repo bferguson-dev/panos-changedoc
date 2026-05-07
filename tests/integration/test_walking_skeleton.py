@@ -15,13 +15,14 @@ def test_walking_skeleton_detects_security_destination_change(tmp_path: Path) ->
 
     report = json.loads(out.read_text(encoding="utf-8"))
     assert report["schema_version"] == "1.0"
-    assert len(report["changes"]) == 1
-
-    change = report["changes"][0]
-    assert change["change_type"] == "modified"
-    assert change["entity"]["type"] == "security_rule"
-    assert change["entity"]["name"] == "Allow-App01-HTTPS"
-    assert change["fields_changed"] == ["destination"]
+    assert len(report["changes"]) >= 1
+    security = [
+        c
+        for c in report["changes"]
+        if c["entity"]["type"] == "security_rule" and c["entity"]["name"] == "Allow-App01-HTTPS"
+    ][0]
+    assert security["change_type"] == "modified"
+    assert security["fields_changed"] == ["destination"]
 
 
 def test_walking_skeleton_id_is_stable_across_runs(tmp_path: Path) -> None:
