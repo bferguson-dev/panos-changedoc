@@ -1,0 +1,23 @@
+<config>
+  <devices>
+    <entry name="localhost.localdomain">
+      <deviceconfig><system><hostname>pa-fw01</hostname></system></deviceconfig>
+      <vsys>
+        <entry name="vsys1">
+          <rulebase>
+            <security><rules>
+              <entry name="Allow-App01-HTTPS"><from><member>trust</member></from><to><member>dmz</member></to><source><member>Corp-Users</member></source><destination><member>APP01</member></destination><application><member>ssl</member><member>web-browsing</member></application><service><member>application-default</member></service><action>allow</action><disabled>no</disabled><log-end>yes</log-end></entry>
+            </rules></security>
+            <nat><rules>
+              <entry name="DNAT-App01"><from><member>untrust</member></from><to><member>untrust</member></to><source><member>any</member></source><destination><member>APP01</member></destination><service><member>any</member></service><destination-translation><translated-address>APP01</translated-address></destination-translation></entry>
+            </rules></nat>
+          </rulebase>
+          <address><entry name="APP01"><ip-netmask>10.10.10.25/32</ip-netmask></entry><entry name="APP01"><ip-netmask>10.10.10.20/32</ip-netmask></entry></address>
+          <address-group><entry name="APP-SERVERS"><static><member>APP01</member></static></entry></address-group>
+          <service><entry name="SVC-HTTPS"><protocol><tcp><port>443</port></tcp></protocol></entry></service>
+        </entry>
+      </vsys>
+      <network><zone><entry name="trust"><network><layer3><member>ethernet1/2</member></layer3></network></entry><entry name="dmz"><network><layer3><member>ethernet1/3</member></layer3></network></entry><entry name="untrust"><network><layer3><member>ethernet1/1</member></layer3></network></entry></zone></network>
+    </entry>
+  </devices>
+</config>

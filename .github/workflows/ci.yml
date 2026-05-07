@@ -1,0 +1,31 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install
+        run: |
+          python -m venv .venv
+          .venv/bin/pip install -e '.[dev]'
+      - name: Lint
+        run: .venv/bin/ruff check .
+      - name: Test
+        run: .venv/bin/pytest
+      - name: Generate Reports
+        run: |
+          .venv/bin/python tools/generate_config.py
+          .venv/bin/panos-changedoc diff --before sample_configs/before.xml --after sample_configs/after.xml --json reports/change-summary.json --markdown reports/change-summary.md
+      - name: Upload Artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: changedoc-reports
+          path: reports/
