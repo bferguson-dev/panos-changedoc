@@ -1,2 +1,0 @@
-[console_scripts]
-panos-changedoc = panos_changedoc.cli:main
