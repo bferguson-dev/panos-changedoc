@@ -40,8 +40,9 @@ def main(argv: list[str] | None = None) -> int:
     parser = _build_parser()
     try:
         args = parser.parse_args(argv)
-    except SystemExit:
-        return EXIT_USAGE
+    except SystemExit as exc:
+        code = exc.code if isinstance(exc.code, int) else EXIT_USAGE
+        return code
 
     if args.command != "diff":
         parser.print_usage()
@@ -61,7 +62,11 @@ def main(argv: list[str] | None = None) -> int:
         report = build_report(before_loaded, after_loaded, before_parsed, after_parsed, changes)
 
         if args.manifest:
-            manifest = json.loads(open(args.manifest, encoding="utf-8").read())
+            try:
+                with open(args.manifest, encoding="utf-8") as fh:
+                    manifest = json.load(fh)
+            except (OSError, json.JSONDecodeError) as exc:
+                raise ManifestValidationError(str(exc)) from exc
             validate_manifest(manifest, report)
 
         if args.json:

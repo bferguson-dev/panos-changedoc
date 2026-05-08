@@ -19,6 +19,11 @@ def test_usage_error_exit_2() -> None:
     assert main(["diff"]) == EXIT_USAGE
 
 
+def test_help_exits_zero() -> None:
+    assert main(["--help"]) == 0
+    assert main(["diff", "--help"]) == 0
+
+
 def test_input_error_exit_3(tmp_path: Path) -> None:
     out = tmp_path / "x.json"
     assert (
@@ -127,6 +132,44 @@ def test_manifest_exit_9(tmp_path: Path) -> None:
             str(tmp_path / "o.json"),
             "--manifest",
             str(m),
+        ]
+    )
+    assert rc == EXIT_MANIFEST
+
+
+def test_manifest_missing_file_exit_9(tmp_path: Path) -> None:
+    fixtures = Path(__file__).resolve().parents[1] / "fixtures"
+    rc = main(
+        [
+            "diff",
+            "--before",
+            str(fixtures / "before_basic.xml"),
+            "--after",
+            str(fixtures / "after_basic.xml"),
+            "--json",
+            str(tmp_path / "o.json"),
+            "--manifest",
+            str(tmp_path / "missing.json"),
+        ]
+    )
+    assert rc == EXIT_MANIFEST
+
+
+def test_manifest_invalid_json_exit_9(tmp_path: Path) -> None:
+    fixtures = Path(__file__).resolve().parents[1] / "fixtures"
+    manifest = tmp_path / "bad.json"
+    manifest.write_text("{", encoding="utf-8")
+    rc = main(
+        [
+            "diff",
+            "--before",
+            str(fixtures / "before_basic.xml"),
+            "--after",
+            str(fixtures / "after_basic.xml"),
+            "--json",
+            str(tmp_path / "o.json"),
+            "--manifest",
+            str(manifest),
         ]
     )
     assert rc == EXIT_MANIFEST

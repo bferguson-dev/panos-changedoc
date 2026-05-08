@@ -159,6 +159,8 @@ def parse_standalone_vsys1(root: Element) -> ParsedConfig:
             )
         )
 
+    unsupported = _detect_unsupported(vsys1, base_xpath)
+
     address_objects: list[AddressObject] = []
     for entry in vsys1.findall("./address/entry"):
         name = entry.attrib.get("name")
@@ -169,6 +171,14 @@ def parse_standalone_vsys1(root: Element) -> ParsedConfig:
         if not value:
             value_type = "fqdn"
             value = normalize_text(entry.findtext("fqdn"))
+        if not value:
+            unsupported.append(
+                {
+                    "xpath": f"{addr_col}/entry[@name='{name}']",
+                    "reason": "Unsupported address object type in v1",
+                }
+            )
+            continue
         address_objects.append(
             AddressObject(
                 name=name,
@@ -214,6 +224,14 @@ def parse_standalone_vsys1(root: Element) -> ParsedConfig:
             protocol = "udp"
             dport = normalize_text(entry.findtext("./protocol/udp/port"))
             sport = normalize_text(entry.findtext("./protocol/udp/source-port")) or None
+        if not dport:
+            unsupported.append(
+                {
+                    "xpath": f"{svc_col}/entry[@name='{name}']",
+                    "reason": "Unsupported service protocol/port in v1",
+                }
+            )
+            continue
         service_objects.append(
             ServiceObject(
                 name=name,
@@ -252,6 +270,6 @@ def parse_standalone_vsys1(root: Element) -> ParsedConfig:
         address_groups=tuple(address_groups),
         service_objects=tuple(service_objects),
         zones=tuple(zones),
-        unsupported=tuple(_detect_unsupported(vsys1, base_xpath)),
+        unsupported=tuple(unsupported),
         warnings=tuple(),
     )

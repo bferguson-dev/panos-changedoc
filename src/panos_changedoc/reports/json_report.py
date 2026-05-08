@@ -10,6 +10,18 @@ from panos_changedoc.models.changes import Change
 from panos_changedoc.schema import validate_report
 
 
+def _dedupe_dict_list(items: list[dict]) -> list[dict]:
+    out: list[dict] = []
+    seen: set[str] = set()
+    for item in items:
+        key = json.dumps(item, sort_keys=True, separators=(",", ":"))
+        if key in seen:
+            continue
+        seen.add(key)
+        out.append(item)
+    return out
+
+
 def _entity_record(change: Change) -> dict:
     return {
         "type": change.entity_type,
@@ -75,6 +87,13 @@ def build_report(before_loaded, after_loaded, before_parsed, after_parsed, chang
     records = [_change_record(c) for c in changes]
     records = sort_changes(records)
     records, ref_warnings = attach_references(records, before_parsed, after_parsed)
+    warnings = _dedupe_dict_list(
+        list(before_parsed.warnings) + list(after_parsed.warnings) + ref_warnings
+    )
+    unsupported = _dedupe_dict_list(
+        list(before_parsed.unsupported) + list(after_parsed.unsupported)
+    )
+
     report = {
         "schema_version": "1.0",
         "tool": {"name": "panos-changedoc", "version": "0.1.0"},
@@ -85,8 +104,8 @@ def build_report(before_loaded, after_loaded, before_parsed, after_parsed, chang
         },
         "summary": _summary(records),
         "changes": records,
-        "warnings": list(before_parsed.warnings) + list(after_parsed.warnings) + ref_warnings,
-        "unsupported": list(before_parsed.unsupported) + list(after_parsed.unsupported),
+        "warnings": warnings,
+        "unsupported": unsupported,
         "errors": [],
     }
     validate_report(report)

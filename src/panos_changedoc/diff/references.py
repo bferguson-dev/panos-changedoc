@@ -58,10 +58,22 @@ def attach_references(changes: list[dict], before_parsed, after_parsed) -> tuple
         truncated = False
 
         if entity_type == "address_object":
+            related_groups: set[str] = set()
             for group_name, group in groups.items():
                 expanded = _walk_group_refs(groups, group_name, set(), 0, 3, warnings)
                 if entity_name in expanded:
+                    related_groups.add(group_name)
                     transitive.append({"source_type": "address_group", "source_name": group_name, "field": "static"})
+            for group_name in sorted(related_groups):
+                for ref in indexed.get(group_name, []):
+                    transitive.append(
+                        {
+                            "source_type": ref["source_type"],
+                            "source_name": ref["source_name"],
+                            "field": ref["field"],
+                            "via": group_name,
+                        }
+                    )
 
         if len(transitive) > 100:
             transitive = transitive[:100]
