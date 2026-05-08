@@ -7,16 +7,34 @@ from panos_changedoc.normalizer import as_memberset
 
 
 def _lcs(a: list[str], b: list[str]) -> list[str]:
-    dp: list[list[list[str]]] = [
-        [[] for _ in range(len(b) + 1)] for _ in range(len(a) + 1)
-    ]
-    for i in range(1, len(a) + 1):
-        for j in range(1, len(b) + 1):
+    m = len(a)
+    n = len(b)
+    lengths: list[list[int]] = [[0] * (n + 1) for _ in range(m + 1)]
+    for i in range(1, m + 1):
+        for j in range(1, n + 1):
             if a[i - 1] == b[j - 1]:
-                dp[i][j] = dp[i - 1][j - 1] + [a[i - 1]]
+                lengths[i][j] = lengths[i - 1][j - 1] + 1
             else:
-                dp[i][j] = dp[i - 1][j] if len(dp[i - 1][j]) >= len(dp[i][j - 1]) else dp[i][j - 1]
-    return dp[-1][-1]
+                lengths[i][j] = (
+                    lengths[i - 1][j]
+                    if lengths[i - 1][j] >= lengths[i][j - 1]
+                    else lengths[i][j - 1]
+                )
+
+    out: list[str] = []
+    i = m
+    j = n
+    while i > 0 and j > 0:
+        if a[i - 1] == b[j - 1]:
+            out.append(a[i - 1])
+            i -= 1
+            j -= 1
+        elif lengths[i - 1][j] >= lengths[i][j - 1]:
+            i -= 1
+        else:
+            j -= 1
+    out.reverse()
+    return out
 
 
 def _rule_field_changes(before: SecurityRule, after: SecurityRule) -> list[FieldChange]:

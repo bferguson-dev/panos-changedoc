@@ -1,6 +1,11 @@
 from pathlib import Path
 
 
+def _code(value: object) -> str:
+    text = str(value).replace("`", "\\`")
+    return f"`{text}`"
+
+
 def render_markdown(report: dict) -> str:
     b = report["inputs"]["before"]
     a = report["inputs"]["after"]
@@ -14,10 +19,10 @@ def render_markdown(report: dict) -> str:
         "",
         "| Input | File | SHA256 |",
         "|---|---|---|",
-        f"| Before | `{b['path']}` | `{b['sha256']}` |",
-        f"| After | `{a['path']}` | `{a['sha256']}` |",
+        f"| Before | {_code(b['path'])} | {_code(b['sha256'])} |",
+        f"| After | {_code(a['path'])} | {_code(a['sha256'])} |",
         "",
-        f"Generated at: `{report['run']['generated_at']}`",
+        f"Generated at: {_code(report['run']['generated_at'])}",
         "",
         "## Change Counts",
         "",
@@ -30,23 +35,38 @@ def render_markdown(report: dict) -> str:
         "",
     ]
     for change in report["changes"]:
+        rulebase = change["entity"]["rulebase"]
+        rulebase_text = "`null`" if rulebase is None else _code(rulebase)
         lines.extend([
-            f"### {change['change_type'].title()}: `{change['entity']['name']}` ({change['entity']['type']})",
+            f"### {change['change_type'].title()}: {_code(change['entity']['name'])} ({change['entity']['type']})",
             "",
             f"**Significance:** {change['significance']}  ",
-            f"**Rulebase:** {change['entity']['rulebase']}  ",
+            f"**Rulebase:** {rulebase_text}  ",
             "",
         ])
         if change["fields_changed"]:
-            lines.append("Fields changed: " + ", ".join(f"`{x}`" for x in change["fields_changed"]))
+            lines.append(
+                "Fields changed: "
+                + ", ".join(_code(x) for x in change["fields_changed"])
+            )
             lines.append("")
     lines.append("## Parser Warnings")
     lines.append("")
-    lines.append("No parser warnings." if not report["warnings"] else "Warnings present.")
+    if not report["warnings"]:
+        lines.append("No parser warnings.")
+    else:
+        for item in report["warnings"]:
+            code = item.get("code", "WARN")
+            message = item.get("message", "")
+            lines.append(f"- `{code}`: {message}")
     lines.append("")
     lines.append("## Unsupported Sections")
     lines.append("")
-    lines.append("No unsupported sections were encountered in supported v1 scope." if not report["unsupported"] else "Unsupported sections encountered.")
+    if not report["unsupported"]:
+        lines.append("No unsupported sections were encountered in supported v1 scope.")
+    else:
+        for item in report["unsupported"]:
+            lines.append(f"- `{item['xpath']}`: {item['reason']}")
     lines.append("")
     return "\n".join(lines)
 

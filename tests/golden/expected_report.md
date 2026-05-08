@@ -23,26 +23,26 @@ Generated at: `2026-05-08T00:00:00+00:00`
 ### Modified: `RuleA` (security_rule)
 
 **Significance:** CRITICAL  
-**Rulebase:** security  
+**Rulebase:** `security`  
 
 Fields changed: `destination`
 
 ### Removed: `APP01-OLD` (address_object)
 
 **Significance:** CRITICAL  
-**Rulebase:** None  
+**Rulebase:** `null`  
 
 ### Modified: `APP01` (address_object)
 
 **Significance:** CRITICAL  
-**Rulebase:** None  
+**Rulebase:** `null`  
 
 Fields changed: `value`
 
 ### Reordered: `RuleB` (security_rule)
 
 **Significance:** HIGH  
-**Rulebase:** security  
+**Rulebase:** `security`  
 
 Fields changed: `order`
 
@@ -52,4 +52,4 @@ No parser warnings.
 
 ## Unsupported Sections
 
-Unsupported sections encountered.
+- `/config/devices/entry[@name='localhost.localdomain']/vsys/entry[@name='vsys1']/application-group`: Unsupported section in v1: application-group
