@@ -291,6 +291,103 @@ CHANGE_TEMPLATES: dict[str, ChangeTemplate] = {
         before_payload={"name": "untrust", "interfaces": ["ethernet1/1"]},
         after_payload={"name": "untrust", "interfaces": ["ethernet1/1"]},
     ),
+    "security_add_admin_portal": ChangeTemplate(
+        key="security_add_admin_portal",
+        category="security_rules",
+        description="Add security rule for Admin-Portal traffic in after.",
+        before_payload=_security_rule(
+            name="Allow-Admin-Portal",
+            from_zones=["trust"],
+            to_zones=["dmz"],
+            source=["Corp-Users"],
+            destination=["APP02"],
+            application=["ssl"],
+            service=["application-default"],
+            action="allow",
+            disabled=False,
+            log_end=True,
+        ),
+        after_payload=_security_rule(
+            name="Allow-Admin-Portal",
+            from_zones=["trust"],
+            to_zones=["dmz"],
+            source=["Corp-Users"],
+            destination=["APP02"],
+            application=["ssl"],
+            service=["application-default"],
+            action="allow",
+            disabled=False,
+            log_end=True,
+        ),
+    ),
+    "security_remove_legacy_temp": ChangeTemplate(
+        key="security_remove_legacy_temp",
+        category="security_rules",
+        description="Remove legacy temporary rule in after.",
+        before_payload=_security_rule(
+            name="Allow-Legacy-Temp",
+            from_zones=["trust"],
+            to_zones=["dmz"],
+            source=["Corp-Users"],
+            destination=["APP02"],
+            application=["web-browsing"],
+            service=["application-default"],
+            action="allow",
+            disabled=False,
+            log_end=False,
+        ),
+        after_payload=_security_rule(
+            name="Allow-Legacy-Temp",
+            from_zones=["trust"],
+            to_zones=["dmz"],
+            source=["Corp-Users"],
+            destination=["APP02"],
+            application=["web-browsing"],
+            service=["application-default"],
+            action="allow",
+            disabled=False,
+            log_end=False,
+        ),
+    ),
+    "nat_disable_temp": ChangeTemplate(
+        key="nat_disable_temp",
+        category="nat_rules",
+        description="Disable NAT temp rule in after.",
+        before_payload=_nat_rule(
+            name="SNAT-Temp",
+            from_zones=["trust"],
+            to_zones=["untrust"],
+            source=["APP02"],
+            destination=["any"],
+            service=["any"],
+            disabled=False,
+            destination_translation="APP02",
+        ),
+        after_payload=_nat_rule(
+            name="SNAT-Temp",
+            from_zones=["trust"],
+            to_zones=["untrust"],
+            source=["APP02"],
+            destination=["any"],
+            service=["any"],
+            disabled=True,
+            destination_translation="APP02",
+        ),
+    ),
+    "service_add_dns": ChangeTemplate(
+        key="service_add_dns",
+        category="service_objects",
+        description="Add UDP DNS service object in after.",
+        before_payload={"name": "SVC-DNS", "protocol": "udp", "port": "53"},
+        after_payload={"name": "SVC-DNS", "protocol": "udp", "port": "53"},
+    ),
+    "zone_add_guest": ChangeTemplate(
+        key="zone_add_guest",
+        category="zones",
+        description="Add guest zone in after.",
+        before_payload={"name": "guest", "interfaces": ["ethernet1/5"]},
+        after_payload={"name": "guest", "interfaces": ["ethernet1/5"]},
+    ),
 }
 
 
@@ -443,14 +540,17 @@ def _validate_spec_shape(spec: dict[str, Any]) -> None:
 
 
 def list_change_templates() -> list[dict[str, str]]:
-    return [
-        {
-            "key": t.key,
-            "category": t.category,
-            "description": t.description,
-        }
-        for t in CHANGE_TEMPLATES.values()
-    ]
+    return sorted(
+        [
+            {
+                "key": t.key,
+                "category": t.category,
+                "description": t.description,
+            }
+            for t in CHANGE_TEMPLATES.values()
+        ],
+        key=lambda x: (x["category"], x["key"]),
+    )
 
 
 def _base_model() -> dict[str, Any]:

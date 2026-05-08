@@ -5,6 +5,7 @@ from tkinter import filedialog, messagebox, ttk
 
 from panos_changedoc.commands import run_diff
 from panos_changedoc.generate import (
+    GenerateValidationError,
     build_from_spec,
     default_spec,
     list_change_templates,
@@ -127,6 +128,15 @@ class App:
             )
             self.rows[item["key"]] = row
 
+        validation_wrap = ttk.LabelFrame(tab, text="Validation Results")
+        validation_wrap.pack(fill="both", expand=False, padx=8, pady=6)
+        self.validation_text = tk.Text(validation_wrap, height=8, wrap="word")
+        self.validation_text.pack(fill="both", expand=True)
+        self._set_validation(
+            "Validation status will appear here. "
+            "Generation fails on any logical issue."
+        )
+
     def _build_diff_tab(self, notebook: ttk.Notebook) -> None:
         tab = ttk.Frame(notebook)
         notebook.add(tab, text="Diff")
@@ -225,6 +235,12 @@ class App:
             "settings": settings,
         }
 
+    def _set_validation(self, text: str) -> None:
+        self.validation_text.configure(state="normal")
+        self.validation_text.delete("1.0", "end")
+        self.validation_text.insert("1.0", text.strip() + "\n")
+        self.validation_text.configure(state="disabled")
+
     def _generate(self) -> bool:
         spec = self._spec_from_ui()
         try:
@@ -240,8 +256,18 @@ class App:
             messagebox.showinfo(
                 "Generate", "Generated before/after XML and manifest successfully."
             )
+            self._set_validation("Validation passed. Files generated successfully.")
             return True
+        except GenerateValidationError as exc:
+            lines = ["Validation failed:"]
+            for issue in exc.issues:
+                lines.append(f"- {issue.message}")
+                lines.append(f"  Fix: {issue.solution}")
+            self._set_validation("\n".join(lines))
+            messagebox.showerror("Generate Failed", str(exc))
+            return False
         except Exception as exc:
+            self._set_validation(f"Unexpected error:\n{exc}")
             messagebox.showerror("Generate Failed", str(exc))
             return False
 

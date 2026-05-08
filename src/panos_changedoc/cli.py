@@ -65,6 +65,13 @@ def _build_parser() -> argparse.ArgumentParser:
     )
     gen_parser.add_argument("--validate-only", action="store_true")
     gen_parser.add_argument("--write-default-spec")
+    gen_parser.add_argument("--list-templates", action="store_true")
+    gen_parser.add_argument(
+        "--format",
+        choices=("json", "yaml"),
+        default="json",
+        help="Output format for --list-templates.",
+    )
 
     subparsers.add_parser("gui")
     subparsers.add_parser("list-templates")
@@ -73,6 +80,16 @@ def _build_parser() -> argparse.ArgumentParser:
 
 def run_generate(args: argparse.Namespace) -> int:
     try:
+        if args.list_templates:
+            templates = list_change_templates()
+            if args.format == "yaml":
+                import yaml
+
+                print(yaml.safe_dump(templates, sort_keys=False))
+            else:
+                print(json.dumps(templates, indent=2))
+            return EXIT_SUCCESS
+
         if args.write_default_spec:
             write_default_spec(args.write_default_spec)
             print(f"Wrote default spec to {args.write_default_spec}")

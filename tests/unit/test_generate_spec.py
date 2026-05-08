@@ -4,6 +4,7 @@ from panos_changedoc.generate import (
     GenerateValidationError,
     build_from_spec,
     default_spec,
+    list_change_templates,
     load_spec,
 )
 
@@ -53,3 +54,12 @@ settings:
     )
     with pytest.raises(GenerateValidationError):
         load_spec(str(path))
+
+
+def test_template_catalog_contains_expanded_keys() -> None:
+    keys = {item["key"] for item in list_change_templates()}
+    assert "security_add_admin_portal" in keys
+    assert "security_remove_legacy_temp" in keys
+    assert "nat_disable_temp" in keys
+    assert "service_add_dns" in keys
+    assert "zone_add_guest" in keys

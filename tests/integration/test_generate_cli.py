@@ -57,3 +57,11 @@ def test_generate_write_default_spec(tmp_path: Path) -> None:
     rc = main(["generate", "--write-default-spec", str(spec_path)])
     assert rc == 0
     assert spec_path.exists()
+
+
+def test_generate_list_templates_yaml(capsys) -> None:
+    rc = main(["generate", "--list-templates", "--format", "yaml"])
+    assert rc == 0
+    out = capsys.readouterr().out
+    assert "key: security_dest_app01" in out
+    assert "category: security_rules" in out
