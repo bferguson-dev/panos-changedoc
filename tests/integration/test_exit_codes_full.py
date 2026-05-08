@@ -101,7 +101,7 @@ def test_schema_error_exit_8(monkeypatch, tmp_path: Path) -> None:
     def _raise_schema(*args, **kwargs):
         raise SchemaValidationError("forced")
 
-    monkeypatch.setattr("panos_changedoc.cli.build_report", _raise_schema)
+    monkeypatch.setattr("panos_changedoc.commands.build_report", _raise_schema)
     fixtures = Path(__file__).resolve().parents[1] / "fixtures"
     rc = main(
         [
@@ -179,7 +179,7 @@ def test_unexpected_error_exit_99(monkeypatch, tmp_path: Path) -> None:
     def _boom(*args, **kwargs):
         raise RuntimeError("boom")
 
-    monkeypatch.setattr("panos_changedoc.cli.diff_configs", _boom)
+    monkeypatch.setattr("panos_changedoc.commands.diff_configs", _boom)
     fixtures = Path(__file__).resolve().parents[1] / "fixtures"
     rc = main(
         [

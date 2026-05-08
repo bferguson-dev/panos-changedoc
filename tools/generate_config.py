@@ -1,39 +1,25 @@
+from __future__ import annotations
+
 from pathlib import Path
 
-BEFORE = """<config>
-  <devices>
-    <entry name=\"localhost.localdomain\">
-      <deviceconfig><system><hostname>pa-fw01</hostname></system></deviceconfig>
-      <vsys>
-        <entry name=\"vsys1\">
-          <rulebase>
-            <security><rules>
-              <entry name=\"Allow-App01-HTTPS\"><from><member>trust</member></from><to><member>dmz</member></to><source><member>Corp-Users</member></source><destination><member>APP01-OLD</member></destination><application><member>ssl</member><member>web-browsing</member></application><service><member>application-default</member></service><action>allow</action><disabled>no</disabled><log-end>yes</log-end></entry>
-            </rules></security>
-            <nat><rules>
-              <entry name=\"DNAT-App01\"><from><member>untrust</member></from><to><member>untrust</member></to><source><member>any</member></source><destination><member>APP01</member></destination><service><member>any</member></service><destination-translation><translated-address>APP01</translated-address></destination-translation></entry>
-            </rules></nat>
-          </rulebase>
-          <address><entry name=\"APP01\"><ip-netmask>10.10.10.20/32</ip-netmask></entry><entry name=\"APP01-OLD\"><ip-netmask>10.10.10.20/32</ip-netmask></entry></address>
-          <address-group><entry name=\"APP-SERVERS\"><static><member>APP01</member></static></entry></address-group>
-          <service><entry name=\"SVC-HTTPS\"><protocol><tcp><port>443</port></tcp></protocol></entry></service>
-        </entry>
-      </vsys>
-      <network><zone><entry name=\"trust\"><network><layer3><member>ethernet1/2</member></layer3></network></entry><entry name=\"dmz\"><network><layer3><member>ethernet1/3</member></layer3></network></entry><entry name=\"untrust\"><network><layer3><member>ethernet1/1</member></layer3></network></entry></zone></network>
-    </entry>
-  </devices>
-</config>
-"""
-
-AFTER = BEFORE.replace("APP01-OLD", "APP01").replace("10.10.10.20/32", "10.10.10.25/32", 1)
+from panos_changedoc.generate import build_from_spec, default_spec, write_outputs
 
 
 def main() -> None:
-    root = Path(__file__).resolve().parents[1] / "sample_configs"
-    root.mkdir(parents=True, exist_ok=True)
-    (root / "before.xml").write_text(BEFORE, encoding="utf-8")
-    (root / "after.xml").write_text(AFTER, encoding="utf-8")
-    (root / "manifest.json").write_text('{"expected": {"total_changes": 2}}\n', encoding="utf-8")
+    root = Path(__file__).resolve().parents[1]
+    sample = root / "sample_configs"
+    sample.mkdir(parents=True, exist_ok=True)
+
+    spec = default_spec()
+    before_xml, after_xml, manifest = build_from_spec(spec)
+    write_outputs(
+        before_xml=before_xml,
+        after_xml=after_xml,
+        manifest=manifest,
+        before_out=str(sample / "before.xml"),
+        after_out=str(sample / "after.xml"),
+        manifest_out=str(sample / "manifest.json"),
+    )
 
 
 if __name__ == "__main__":

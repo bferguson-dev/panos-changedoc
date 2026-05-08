@@ -18,3 +18,34 @@ panos-changedoc diff \
   --after sample_configs/after.xml \
   --json reports/change-summary.json
 ```
+
+## Generate Test Configs from YAML
+
+```bash
+panos-changedoc generate --write-default-spec sample_configs/spec.yaml
+panos-changedoc generate \
+  --spec sample_configs/spec.yaml \
+  --before-out sample_configs/before.xml \
+  --after-out sample_configs/after.xml \
+  --manifest-out sample_configs/manifest.json
+```
+
+List selectable generator templates:
+
+```bash
+panos-changedoc list-templates
+```
+
+## GUI Wrapper
+
+Launch the Tkinter wrapper:
+
+```bash
+panos-changedoc gui
+```
+
+GUI features:
+- Tabbed sections for generator and diff workflows
+- Before/After checkboxes for each deterministic change template
+- Test mode to generate before running diff
+- Run Diff button for user-selected before/after files
