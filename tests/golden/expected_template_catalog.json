@@ -1,0 +1,107 @@
+[
+  {
+    "key": "agrp_app_servers",
+    "category": "address_groups",
+    "description": "Address-group APP-SERVERS member set changes."
+  },
+  {
+    "key": "addr_app01_new",
+    "category": "address_objects",
+    "description": "Address APP01-NEW used as NAT translation target."
+  },
+  {
+    "key": "addr_app01_old",
+    "category": "address_objects",
+    "description": "Address APP01-OLD used for remove tests."
+  },
+  {
+    "key": "addr_app01_value",
+    "category": "address_objects",
+    "description": "Address APP01 value changes 10.10.10.20/32 -> 10.10.10.25/32."
+  },
+  {
+    "key": "addr_app02",
+    "category": "address_objects",
+    "description": "Address APP02 baseline object."
+  },
+  {
+    "key": "addr_app03",
+    "category": "address_objects",
+    "description": "Address APP03 used for add tests."
+  },
+  {
+    "key": "nat_reorder_pair",
+    "category": "nat_reorder",
+    "description": "NAT rule order swaps DNAT-App01 and SNAT-App02."
+  },
+  {
+    "key": "nat_disable_temp",
+    "category": "nat_rules",
+    "description": "Disable NAT temp rule in after."
+  },
+  {
+    "key": "nat_snat_app02",
+    "category": "nat_rules",
+    "description": "SNAT-App02 baseline NAT rule used for reorder scenarios."
+  },
+  {
+    "key": "nat_translation_app01",
+    "category": "nat_rules",
+    "description": "NAT destination translation changes APP01 -> APP01-NEW."
+  },
+  {
+    "key": "security_reorder_pair",
+    "category": "security_reorder",
+    "description": "Security rule order changes between App01 and App02."
+  },
+  {
+    "key": "security_add_admin_portal",
+    "category": "security_rules",
+    "description": "Add security rule for Admin-Portal traffic in after."
+  },
+  {
+    "key": "security_dest_app01",
+    "category": "security_rules",
+    "description": "Security rule destination changes APP01-OLD -> APP01."
+  },
+  {
+    "key": "security_disable_app02",
+    "category": "security_rules",
+    "description": "Security rule disable toggle for Allow-App02-HTTPS."
+  },
+  {
+    "key": "security_remove_legacy_temp",
+    "category": "security_rules",
+    "description": "Remove legacy temporary rule in after."
+  },
+  {
+    "key": "service_add_dns",
+    "category": "service_objects",
+    "description": "Add UDP DNS service object in after."
+  },
+  {
+    "key": "svc_https",
+    "category": "service_objects",
+    "description": "Service SVC-HTTPS port changes 443 -> 8443."
+  },
+  {
+    "key": "zone_add_guest",
+    "category": "zones",
+    "description": "Add guest zone in after."
+  },
+  {
+    "key": "zone_dmz",
+    "category": "zones",
+    "description": "Zone dmz layer3 interfaces add ethernet1/4."
+  },
+  {
+    "key": "zone_trust",
+    "category": "zones",
+    "description": "Zone trust baseline."
+  },
+  {
+    "key": "zone_untrust",
+    "category": "zones",
+    "description": "Zone untrust baseline."
+  }
+]

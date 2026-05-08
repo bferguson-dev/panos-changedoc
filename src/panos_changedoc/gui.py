@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 import tkinter as tk
 from tkinter import filedialog, messagebox, ttk
 
@@ -195,6 +196,13 @@ class App:
         ttk.Button(tab, text="Run Diff", command=self._run_diff).pack(
             anchor="w", padx=8, pady=8
         )
+        diff_wrap = ttk.LabelFrame(tab, text="Diff Results")
+        diff_wrap.pack(fill="both", expand=True, padx=8, pady=8)
+        self.diff_text = tk.Text(diff_wrap, height=10, wrap="word")
+        self.diff_text.pack(fill="both", expand=True)
+        self._set_diff_results(
+            "Diff summary will appear here after clicking Run Diff."
+        )
 
     def _browse_open(self, var: tk.StringVar) -> None:
         p = filedialog.askopenfilename()
@@ -241,6 +249,12 @@ class App:
         self.validation_text.insert("1.0", text.strip() + "\n")
         self.validation_text.configure(state="disabled")
 
+    def _set_diff_results(self, text: str) -> None:
+        self.diff_text.configure(state="normal")
+        self.diff_text.delete("1.0", "end")
+        self.diff_text.insert("1.0", text.strip() + "\n")
+        self.diff_text.configure(state="disabled")
+
     def _generate(self) -> bool:
         spec = self._spec_from_ui()
         try:
@@ -285,10 +299,49 @@ class App:
             quiet=True,
         )
         if rc == 0:
+            summary_text = "Diff completed.\n"
+            try:
+                report = json.loads(
+                    open(self.diff_json_path.get(), encoding="utf-8").read()
+                )
+                summary = report["summary"]
+                summary_text = (
+                    "Diff completed successfully.\n\n"
+                    f"Total changes: {summary['total_changes']}\n"
+                    "By significance:\n"
+                    f"- CRITICAL: {summary['by_significance']['CRITICAL']}\n"
+                    f"- HIGH: {summary['by_significance']['HIGH']}\n"
+                    f"- LOW: {summary['by_significance']['LOW']}\n"
+                    "By entity type:\n"
+                    f"- security_rule: "
+                    f"{summary['by_entity_type']['security_rule']}\n"
+                    f"- nat_rule: {summary['by_entity_type']['nat_rule']}\n"
+                    f"- address_object: "
+                    f"{summary['by_entity_type']['address_object']}\n"
+                    f"- address_group: "
+                    f"{summary['by_entity_type']['address_group']}\n"
+                    f"- service_object: "
+                    f"{summary['by_entity_type']['service_object']}\n"
+                    f"- zone: {summary['by_entity_type']['zone']}\n\n"
+                    f"JSON report: {self.diff_json_path.get()}\n"
+                    f"Markdown report: {self.diff_md_path.get()}"
+                )
+            except Exception as exc:
+                summary_text = (
+                    "Diff completed, but summary parsing failed.\n"
+                    f"Error: {exc}\n"
+                    f"JSON report: {self.diff_json_path.get()}\n"
+                    f"Markdown report: {self.diff_md_path.get()}"
+                )
+            self._set_diff_results(summary_text)
             messagebox.showinfo(
                 "Diff", "Diff completed. JSON/Markdown reports were written."
             )
         else:
+            self._set_diff_results(
+                f"Diff failed with exit code {rc}.\n"
+                "Check generated inputs and try again."
+            )
             messagebox.showerror(
                 "Diff Failed", f"Diff command failed with exit code {rc}."
             )
