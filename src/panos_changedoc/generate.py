@@ -27,6 +27,18 @@ class GenerateValidationError(Exception):
         super().__init__(f"Generation validation failed:\n{details}")
 
 
+def _dedupe_issues(issues: list[ValidationIssue]) -> list[ValidationIssue]:
+    unique: list[ValidationIssue] = []
+    seen: set[tuple[str, str]] = set()
+    for issue in issues:
+        key = (issue.message, issue.solution)
+        if key in seen:
+            continue
+        seen.add(key)
+        unique.append(issue)
+    return unique
+
+
 @dataclass(frozen=True)
 class ChangeTemplate:
     key: str
@@ -36,8 +48,23 @@ class ChangeTemplate:
     after_payload: dict[str, Any] | None
 
 
+@dataclass(frozen=True)
+class ProfileDefinition:
+    key: str
+    panos_version: str
+    description: str
+
+
 ALLOWED_ROOT_KEYS = {"version", "panos_version", "profile", "settings"}
 ALLOWED_SETTING_KEYS = {"key", "before", "after"}
+PROFILE_STANDALONE_VSYS1 = ProfileDefinition(
+    key="standalone_vsys1",
+    panos_version="12.1",
+    description="Standalone firewall scope using only vsys1.",
+)
+PROFILES: dict[str, ProfileDefinition] = {
+    PROFILE_STANDALONE_VSYS1.key: PROFILE_STANDALONE_VSYS1
+}
 
 
 def _security_rule(
@@ -420,7 +447,20 @@ def default_spec() -> dict[str, Any]:
 def load_spec(path: str) -> dict[str, Any]:
     p = Path(path)
     raw = p.read_text(encoding="utf-8")
-    data = yaml.safe_load(raw)
+    try:
+        data = yaml.safe_load(raw)
+    except yaml.YAMLError as exc:
+        raise GenerateValidationError(
+            [
+                ValidationIssue(
+                    message=f"YAML parse error: {exc}",
+                    solution=(
+                        "Fix YAML syntax (indentation, brackets, and mapping "
+                        "structure), then retry generation."
+                    ),
+                )
+            ]
+        ) from exc
     if not isinstance(data, dict):
         raise GenerateValidationError(
             [
@@ -467,7 +507,7 @@ def _validate_unknown_keys(spec: dict[str, Any]) -> None:
                     )
                 )
     if issues:
-        raise GenerateValidationError(issues)
+        raise GenerateValidationError(_dedupe_issues(issues))
 
 
 def _validate_spec_shape(spec: dict[str, Any]) -> None:
@@ -479,18 +519,27 @@ def _validate_spec_shape(spec: dict[str, Any]) -> None:
                 solution="Set version: 1 in the YAML.",
             )
         )
-    if spec.get("panos_version") != "12.1":
+    profile_key_obj = spec.get("profile")
+    profile_key = profile_key_obj if isinstance(profile_key_obj, str) else None
+    profile_def = PROFILES.get(profile_key) if profile_key else None
+    if profile_def is None:
         issues.append(
             ValidationIssue(
-                message="panos_version must be 12.1 for this generator.",
-                solution="Set panos_version: '12.1'.",
+                message=f"profile '{profile_key}' is not supported.",
+                solution=(
+                    "Set profile to one of: "
+                    + ", ".join(sorted(PROFILES.keys()))
+                    + "."
+                ),
             )
         )
-    if spec.get("profile") != "standalone_vsys1":
+    if profile_def and spec.get("panos_version") != profile_def.panos_version:
         issues.append(
             ValidationIssue(
-                message="profile must be standalone_vsys1.",
-                solution="Set profile: standalone_vsys1.",
+                message=(
+                    "panos_version does not match profile requirements."
+                ),
+                solution=f"Set panos_version: '{profile_def.panos_version}'.",
             )
         )
 
@@ -536,7 +585,7 @@ def _validate_spec_shape(spec: dict[str, Any]) -> None:
                         )
                     )
     if issues:
-        raise GenerateValidationError(issues)
+        raise GenerateValidationError(_dedupe_issues(issues))
 
 
 def list_change_templates() -> list[dict[str, str]]:
@@ -773,7 +822,23 @@ def _validate_model_logic(
         )
 
     if issues:
-        raise GenerateValidationError(issues)
+        raise GenerateValidationError(_dedupe_issues(issues))
+
+
+def _validate_profile_model_logic(
+    profile: str, before: dict[str, Any], after: dict[str, Any]
+) -> None:
+    if profile == PROFILE_STANDALONE_VSYS1.key:
+        _validate_model_logic(before, after)
+        return
+    raise GenerateValidationError(
+        [
+            ValidationIssue(
+                message=f"Unsupported profile logic validator: {profile}.",
+                solution="Use a supported profile.",
+            )
+        ]
+    )
 
 
 def _add_members(parent: Element, tag: str, members: list[str]) -> None:
@@ -861,7 +926,7 @@ def _build_config(model: dict[str, Any]) -> str:
 
 def build_from_spec(spec: dict[str, Any]) -> tuple[str, str, dict[str, Any]]:
     before_model, after_model = _build_models_from_spec(spec)
-    _validate_model_logic(before_model, after_model)
+    _validate_profile_model_logic(spec["profile"], before_model, after_model)
 
     before_xml = _build_config(before_model)
     after_xml = _build_config(after_model)

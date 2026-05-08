@@ -99,7 +99,11 @@ def run_generate(args: argparse.Namespace) -> int:
             print("--spec is required unless --write-default-spec is used.")
             return EXIT_USAGE
 
-        spec = load_spec(args.spec)
+        try:
+            spec = load_spec(args.spec)
+        except FileNotFoundError as exc:
+            print(f"Input file not found: {exc.filename}", file=sys.stderr)
+            return EXIT_INPUT
         before_xml, after_xml, manifest = build_from_spec(spec)
 
         if args.validate_only:
@@ -153,8 +157,15 @@ def main(argv: list[str] | None = None) -> int:
     if args.command == "generate":
         return run_generate(args)
     if args.command == "gui":
-        from panos_changedoc.gui import launch_gui
-
+        try:
+            from panos_changedoc.gui import launch_gui
+        except ModuleNotFoundError:
+            print(
+                "GUI dependencies are unavailable. Install Python tkinter support "
+                "for this environment and retry.",
+                file=sys.stderr,
+            )
+            return EXIT_USAGE
         return launch_gui()
     if args.command == "list-templates":
         print(json.dumps(list_change_templates(), indent=2))

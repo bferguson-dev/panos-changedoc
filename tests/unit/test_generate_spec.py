@@ -56,6 +56,16 @@ settings:
         load_spec(str(path))
 
 
+def test_malformed_yaml_has_human_readable_fix(tmp_path) -> None:
+    path = tmp_path / "bad.yaml"
+    path.write_text("settings: [\n", encoding="utf-8")
+    with pytest.raises(GenerateValidationError) as err:
+        load_spec(str(path))
+    msg = str(err.value)
+    assert "YAML parse error" in msg
+    assert "Fix YAML syntax" in msg
+
+
 def test_template_catalog_contains_expanded_keys() -> None:
     keys = {item["key"] for item in list_change_templates()}
     assert "security_add_admin_portal" in keys

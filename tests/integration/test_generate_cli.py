@@ -65,3 +65,51 @@ def test_generate_list_templates_yaml(capsys) -> None:
     out = capsys.readouterr().out
     assert "key: security_dest_app01" in out
     assert "category: security_rules" in out
+
+
+def test_generate_missing_spec_returns_input_error(tmp_path: Path) -> None:
+    missing = tmp_path / "missing.yaml"
+    rc = main(["generate", "--spec", str(missing)])
+    assert rc == 3
+
+
+def test_generate_validation_message_dedupes_duplicate_issues(
+    tmp_path: Path, capsys
+) -> None:
+    spec = tmp_path / "logicbad.yaml"
+    spec.write_text(
+        "\n".join(
+            [
+                "version: 1",
+                "panos_version: '12.1'",
+                "profile: standalone_vsys1",
+                "settings:",
+                "  - key: nat_translation_app01",
+                "    before: false",
+                "    after: true",
+            ]
+        )
+        + "\n",
+        encoding="utf-8",
+    )
+    rc = main(["generate", "--spec", str(spec)])
+    assert rc == 9
+    err = capsys.readouterr().err
+    assert err.count("missing zone 'untrust'") == 1
+
+
+def test_gui_command_handles_missing_tkinter(monkeypatch, capsys) -> None:
+    import builtins
+
+    real_import = builtins.__import__
+
+    def fake_import(name, *args, **kwargs):
+        if name == "tkinter":
+            raise ModuleNotFoundError("No module named 'tkinter'")
+        return real_import(name, *args, **kwargs)
+
+    monkeypatch.setattr(builtins, "__import__", fake_import)
+    rc = main(["gui"])
+    assert rc == 2
+    err = capsys.readouterr().err
+    assert "GUI dependencies are unavailable" in err
