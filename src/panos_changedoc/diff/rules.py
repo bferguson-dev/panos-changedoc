@@ -7,7 +7,9 @@ from panos_changedoc.normalizer import as_memberset
 
 
 def _lcs(a: list[str], b: list[str]) -> list[str]:
-    dp = [[[] for _ in range(len(b) + 1)] for _ in range(len(a) + 1)]
+    dp: list[list[list[str]]] = [
+        [[] for _ in range(len(b) + 1)] for _ in range(len(a) + 1)
+    ]
     for i in range(1, len(a) + 1):
         for j in range(1, len(b) + 1):
             if a[i - 1] == b[j - 1]:

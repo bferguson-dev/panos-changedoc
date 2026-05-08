@@ -1,4 +1,5 @@
 import json
+import os
 from datetime import datetime, timezone
 from pathlib import Path
 
@@ -66,13 +67,18 @@ def _summary(changes: list[dict]) -> dict:
 
 
 def build_report(before_loaded, after_loaded, before_parsed, after_parsed, changes: list[Change]) -> dict:
+    generated_at = os.getenv("PANOS_CHANGEDOC_GENERATED_AT")
+    if not generated_at:
+        generated_at = (
+            datetime.now(timezone.utc).replace(microsecond=0).isoformat()
+        )
     records = [_change_record(c) for c in changes]
     records = sort_changes(records)
     records, ref_warnings = attach_references(records, before_parsed, after_parsed)
     report = {
         "schema_version": "1.0",
         "tool": {"name": "panos-changedoc", "version": "0.1.0"},
-        "run": {"generated_at": datetime.now(timezone.utc).replace(microsecond=0).isoformat()},
+        "run": {"generated_at": generated_at},
         "inputs": {
             "before": _input_record("before", before_loaded, before_parsed),
             "after": _input_record("after", after_loaded, after_parsed),

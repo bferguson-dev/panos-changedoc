@@ -45,7 +45,7 @@ def attach_references(changes: list[dict], before_parsed, after_parsed) -> tuple
             for m in members:
                 nat_refs.append((m, "nat_rule", r.name, field))
 
-    indexed = {}
+    indexed: dict[str, list[dict]] = {}
     for m, src_t, src_n, field in sec_refs + nat_refs:
         indexed.setdefault(m, []).append({"source_type": src_t, "source_name": src_n, "field": field})
 

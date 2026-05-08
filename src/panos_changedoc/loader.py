@@ -37,6 +37,8 @@ def load_xml_file(path_str: str) -> LoadedXml:
         root = parse(path).getroot()
     except ParseError as exc:
         raise XmlParseError(f"Malformed XML: {path_str}") from exc
+    if root is None:
+        raise XmlParseError(f"Malformed XML: {path_str}")
 
     return LoadedXml(
         path=path,
