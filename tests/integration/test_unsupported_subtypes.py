@@ -18,10 +18,14 @@ def test_unsupported_address_subtype_is_reported(tmp_path) -> None:
     before.write_text(xml, encoding="utf-8")
     after.write_text(xml, encoding="utf-8")
 
-    rc = main(["diff", "--before", str(before), "--after", str(after), "--json", str(out)])
+    rc = main(
+        ["diff", "--before", str(before), "--after", str(after), "--json", str(out)]
+    )
     assert rc == 0
     report = json.loads(out.read_text(encoding="utf-8"))
-    assert any("Unsupported address object type" in x["reason"] for x in report["unsupported"])
+    assert any(
+        "Unsupported address object type" in x["reason"] for x in report["unsupported"]
+    )
 
 
 def test_unsupported_service_subtype_is_reported(tmp_path) -> None:
@@ -39,7 +43,12 @@ def test_unsupported_service_subtype_is_reported(tmp_path) -> None:
     before.write_text(xml, encoding="utf-8")
     after.write_text(xml, encoding="utf-8")
 
-    rc = main(["diff", "--before", str(before), "--after", str(after), "--json", str(out)])
+    rc = main(
+        ["diff", "--before", str(before), "--after", str(after), "--json", str(out)]
+    )
     assert rc == 0
     report = json.loads(out.read_text(encoding="utf-8"))
-    assert any("Unsupported service protocol/port" in x["reason"] for x in report["unsupported"])
+    assert any(
+        "Unsupported service protocol/port" in x["reason"]
+        for x in report["unsupported"]
+    )

@@ -3,9 +3,7 @@ from pathlib import Path
 from panos_changedoc.cli import main
 
 
-def test_golden_json_and_markdown_exact_match(
-    tmp_path: Path, monkeypatch
-) -> None:
+def test_golden_json_and_markdown_exact_match(tmp_path: Path, monkeypatch) -> None:
     root = Path(__file__).resolve().parents[2]
     monkeypatch.chdir(root)
     monkeypatch.setenv("PANOS_CHANGEDOC_GENERATED_AT", "2026-05-08T00:00:00+00:00")

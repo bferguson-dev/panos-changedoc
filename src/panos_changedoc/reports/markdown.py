@@ -37,13 +37,19 @@ def render_markdown(report: dict) -> str:
     for change in report["changes"]:
         rulebase = change["entity"]["rulebase"]
         rulebase_text = "`null`" if rulebase is None else _code(rulebase)
-        lines.extend([
-            f"### {change['change_type'].title()}: {_code(change['entity']['name'])} ({change['entity']['type']})",
-            "",
-            f"**Significance:** {change['significance']}  ",
-            f"**Rulebase:** {rulebase_text}  ",
-            "",
-        ])
+        lines.extend(
+            [
+                (
+                    f"### {change['change_type'].title()}: "
+                    f"{_code(change['entity']['name'])} "
+                    f"({change['entity']['type']})"
+                ),
+                "",
+                f"**Significance:** {change['significance']}  ",
+                f"**Rulebase:** {rulebase_text}  ",
+                "",
+            ]
+        )
         if change["fields_changed"]:
             lines.append(
                 "Fields changed: "

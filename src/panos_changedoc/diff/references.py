@@ -1,8 +1,20 @@
-def _walk_group_refs(groups: dict[str, object], group_name: str, visited: set[str], depth: int, max_depth: int, warnings: list[dict]) -> set[str]:
+def _walk_group_refs(
+    groups: dict[str, object],
+    group_name: str,
+    visited: set[str],
+    depth: int,
+    max_depth: int,
+    warnings: list[dict],
+) -> set[str]:
     if depth > max_depth:
         return set()
     if group_name in visited:
-        warnings.append({"code": "REF_CYCLE", "message": f"Address group cycle detected at {group_name}"})
+        warnings.append(
+            {
+                "code": "REF_CYCLE",
+                "message": f"Address group cycle detected at {group_name}",
+            }
+        )
         return set()
     visited = set(visited)
     visited.add(group_name)
@@ -13,11 +25,15 @@ def _walk_group_refs(groups: dict[str, object], group_name: str, visited: set[st
     out = set(refs)
     for item in refs:
         if item in groups:
-            out |= _walk_group_refs(groups, item, visited, depth + 1, max_depth, warnings)
+            out |= _walk_group_refs(
+                groups, item, visited, depth + 1, max_depth, warnings
+            )
     return out
 
 
-def attach_references(changes: list[dict], before_parsed, after_parsed) -> tuple[list[dict], list[dict]]:
+def attach_references(
+    changes: list[dict], before_parsed, after_parsed
+) -> tuple[list[dict], list[dict]]:
     warnings: list[dict] = []
     groups = {g.name: g for g in after_parsed.address_groups}
 
@@ -47,7 +63,9 @@ def attach_references(changes: list[dict], before_parsed, after_parsed) -> tuple
 
     indexed: dict[str, list[dict]] = {}
     for m, src_t, src_n, field in sec_refs + nat_refs:
-        indexed.setdefault(m, []).append({"source_type": src_t, "source_name": src_n, "field": field})
+        indexed.setdefault(m, []).append(
+            {"source_type": src_t, "source_name": src_n, "field": field}
+        )
 
     out = []
     for change in changes:
@@ -63,7 +81,13 @@ def attach_references(changes: list[dict], before_parsed, after_parsed) -> tuple
                 expanded = _walk_group_refs(groups, group_name, set(), 0, 3, warnings)
                 if entity_name in expanded:
                     related_groups.add(group_name)
-                    transitive.append({"source_type": "address_group", "source_name": group_name, "field": "static"})
+                    transitive.append(
+                        {
+                            "source_type": "address_group",
+                            "source_name": group_name,
+                            "field": "static",
+                        }
+                    )
             for group_name in sorted(related_groups):
                 for ref in indexed.get(group_name, []):
                     transitive.append(
@@ -80,7 +104,12 @@ def attach_references(changes: list[dict], before_parsed, after_parsed) -> tuple
             truncated = True
 
         clone = dict(change)
-        clone["references"] = {"direct": direct, "transitive": transitive, "truncated": truncated, "max_depth": 3}
+        clone["references"] = {
+            "direct": direct,
+            "transitive": transitive,
+            "truncated": truncated,
+            "max_depth": 3,
+        }
         out.append(clone)
 
     return out, warnings

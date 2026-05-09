@@ -23,12 +23,8 @@ class ChangeRow:
         row = ttk.Frame(parent)
         row.pack(fill="x", pady=2)
         ttk.Label(row, text=key, width=28).pack(side="left")
-        ttk.Checkbutton(row, text="Before", variable=self.before_var).pack(
-            side="left"
-        )
-        ttk.Checkbutton(row, text="After", variable=self.after_var).pack(
-            side="left"
-        )
+        ttk.Checkbutton(row, text="Before", variable=self.before_var).pack(side="left")
+        ttk.Checkbutton(row, text="After", variable=self.after_var).pack(side="left")
         ttk.Label(row, text=description, width=70).pack(side="left", padx=8)
 
 
@@ -108,9 +104,7 @@ class App:
         grid_wrap.pack(fill="both", expand=True, padx=8, pady=8)
 
         canvas = tk.Canvas(grid_wrap)
-        scroll = ttk.Scrollbar(
-            grid_wrap, orient="vertical", command=canvas.yview
-        )
+        scroll = ttk.Scrollbar(grid_wrap, orient="vertical", command=canvas.yview)
         self.changes_frame = ttk.Frame(canvas)
         self.changes_frame.bind(
             "<Configure>",
@@ -134,8 +128,7 @@ class App:
         self.validation_text = tk.Text(validation_wrap, height=8, wrap="word")
         self.validation_text.pack(fill="both", expand=True)
         self._set_validation(
-            "Validation status will appear here. "
-            "Generation fails on any logical issue."
+            "Validation status will appear here. Generation fails on any logical issue."
         )
 
     def _build_diff_tab(self, notebook: ttk.Notebook) -> None:
@@ -200,9 +193,7 @@ class App:
         diff_wrap.pack(fill="both", expand=True, padx=8, pady=8)
         self.diff_text = tk.Text(diff_wrap, height=10, wrap="word")
         self.diff_text.pack(fill="both", expand=True)
-        self._set_diff_results(
-            "Diff summary will appear here after clicking Run Diff."
-        )
+        self._set_diff_results("Diff summary will appear here after clicking Run Diff.")
 
     def _browse_open(self, var: tk.StringVar) -> None:
         p = filedialog.askopenfilename()

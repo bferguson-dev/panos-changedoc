@@ -13,7 +13,11 @@ def test_reference_graph_direct_links_present() -> None:
     pb = parse_standalone_vsys1(b.root)
     pa = parse_standalone_vsys1(a.root)
     report = build_report(b, a, pb, pa, diff_configs(pb, pa))
-    addr_changes = [c for c in report["changes"] if c["entity"]["type"] == "address_object" and c["entity"]["name"] == "APP01"]
+    addr_changes = [
+        c
+        for c in report["changes"]
+        if c["entity"]["type"] == "address_object" and c["entity"]["name"] == "APP01"
+    ]
     assert addr_changes
     refs = addr_changes[0]["references"]["direct"]
     assert any(r["source_type"] == "nat_rule" for r in refs)

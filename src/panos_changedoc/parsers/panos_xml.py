@@ -6,7 +6,11 @@ from panos_changedoc.models.objects import AddressGroup, AddressObject
 from panos_changedoc.models.security import MemberSet, SecurityRule
 from panos_changedoc.models.services import ServiceObject
 from panos_changedoc.models.zones import Zone
-from panos_changedoc.normalizer import normalize_bool_text, normalize_member_list, normalize_text
+from panos_changedoc.normalizer import (
+    normalize_bool_text,
+    normalize_member_list,
+    normalize_text,
+)
 
 
 class UnsupportedScopeError(Exception):
@@ -36,16 +40,23 @@ class ParsedConfig:
 
 
 def _ms(parent: Element | None) -> MemberSet:
+    # PAN-OS represents "any" explicitly in the UI, but the XML can omit
+    # a member block in small generated fixtures. Keep "any" visible so
+    # firewall engineers can distinguish it from an empty or missing list.
     if parent is None:
         return MemberSet(type="any", members=("any",))
-    members = normalize_member_list([normalize_text(m.text) for m in parent.findall("member")])
+    members = normalize_member_list(
+        [normalize_text(m.text) for m in parent.findall("member")]
+    )
     if not members:
         members = ("any",)
     return MemberSet(type="any" if members == ("any",) else "members", members=members)
 
 
 def _tags(entry: Element) -> tuple[str, ...]:
-    return normalize_member_list([normalize_text(m.text) for m in entry.findall("tag/member")])
+    return normalize_member_list(
+        [normalize_text(m.text) for m in entry.findall("tag/member")]
+    )
 
 
 def _desc(entry: Element) -> str | None:
@@ -65,6 +76,9 @@ def _translation(entry: Element) -> dict:
 
 
 def _detect_unsupported(vsys1: Element, base_xpath: str) -> list[dict]:
+    # V1 only documents the sections it can normalize safely. Unsupported
+    # sections are reported in the output so a reviewer knows the XML had
+    # content outside the current parser scope.
     supported = {"rulebase", "address", "address-group", "service"}
     unsupported: list[dict] = []
     for child in list(vsys1):
@@ -90,9 +104,12 @@ def _detect_unsupported(vsys1: Element, base_xpath: str) -> list[dict]:
 
 
 def parse_standalone_vsys1(root: Element) -> ParsedConfig:
+    """Parse the supported standalone firewall scope into normalized models."""
     if root.tag != "config":
         raise UnsupportedScopeError("Root element must be <config>")
 
+    # Standalone firewalls export one device entry. Multiple entries usually
+    # mean Panorama/shared context, which v1 intentionally does not compare.
     device_entries = root.findall("./devices/entry")
     if len(device_entries) != 1:
         raise UnsupportedScopeError("Expected exactly one /config/devices/entry")
@@ -106,7 +123,11 @@ def parse_standalone_vsys1(root: Element) -> ParsedConfig:
     if vsys1 is None:
         raise UnsupportedScopeError("Required vsys1 not found")
 
-    base_xpath = f"/config/devices/entry[@name='{device_entry_name}']/vsys/entry[@name='vsys1']"
+    # Store canonical XPaths in the model because change tickets often need
+    # to point back to the exact PAN-OS config location.
+    base_xpath = (
+        f"/config/devices/entry[@name='{device_entry_name}']/vsys/entry[@name='vsys1']"
+    )
 
     sec_col = f"{base_xpath}/rulebase/security/rules"
     nat_col = f"{base_xpath}/rulebase/nat/rules"
@@ -196,7 +217,9 @@ def parse_standalone_vsys1(root: Element) -> ParsedConfig:
         name = entry.attrib.get("name")
         if not name:
             raise FatalModelParseError("Address group entry missing name")
-        static_members = normalize_member_list([normalize_text(m.text) for m in entry.findall("./static/member")])
+        static_members = normalize_member_list(
+            [normalize_text(m.text) for m in entry.findall("./static/member")]
+        )
         dynamic_filter = normalize_text(entry.findtext("./dynamic/filter")) or None
         group_type = "dynamic" if dynamic_filter else "static"
         address_groups.append(
@@ -246,12 +269,24 @@ def parse_standalone_vsys1(root: Element) -> ParsedConfig:
         )
 
     zones: list[Zone] = []
+    # Zones live under the device network tree, not under vsys1, but policy
+    # and NAT rules reference them by name. Include them in the same parsed
+    # config so zone membership changes can be documented.
     for entry in device.findall("./network/zone/entry"):
         name = entry.attrib.get("name")
         if not name:
             raise FatalModelParseError("Zone entry missing name")
-        interfaces = normalize_member_list([normalize_text(m.text) for m in entry.findall("./network/layer3/member")])
-        zones.append(Zone(name=name, interfaces=interfaces, xpath=f"{zone_col}/entry[@name='{name}']", collection_xpath=zone_col))
+        interfaces = normalize_member_list(
+            [normalize_text(m.text) for m in entry.findall("./network/layer3/member")]
+        )
+        zones.append(
+            Zone(
+                name=name,
+                interfaces=interfaces,
+                xpath=f"{zone_col}/entry[@name='{name}']",
+                collection_xpath=zone_col,
+            )
+        )
 
     hostname = normalize_text(device.findtext("./deviceconfig/system/hostname")) or None
     config_version = normalize_text(root.attrib.get("version")) or None

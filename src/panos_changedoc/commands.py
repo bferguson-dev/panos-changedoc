@@ -76,10 +76,7 @@ def run_diff(
             write_markdown(markdown_out, report)
 
         if verbose and not quiet:
-            print(
-                f"Generated report with {report['summary']['total_changes']} "
-                "changes"
-            )
+            print(f"Generated report with {report['summary']['total_changes']} changes")
         return EXIT_SUCCESS
     except InputFileError as exc:
         print(str(exc), file=sys.stderr)

@@ -42,9 +42,13 @@ def test_large_config_is_deterministic_and_fast(tmp_path: Path, monkeypatch) -> 
     after.write_text(_build_config(300, ""), encoding="utf-8")
 
     t0 = time.perf_counter()
-    rc1 = main(["diff", "--before", str(before), "--after", str(after), "--json", str(out1)])
+    rc1 = main(
+        ["diff", "--before", str(before), "--after", str(after), "--json", str(out1)]
+    )
     elapsed = time.perf_counter() - t0
-    rc2 = main(["diff", "--before", str(before), "--after", str(after), "--json", str(out2)])
+    rc2 = main(
+        ["diff", "--before", str(before), "--after", str(after), "--json", str(out2)]
+    )
 
     assert rc1 == 0
     assert rc2 == 0

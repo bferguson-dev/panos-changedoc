@@ -1,4 +1,4 @@
-"""PAN-OS ChangeDoc."""
+"""Offline PAN-OS XML change documentation tool."""
 
 __all__ = ["__version__"]
 

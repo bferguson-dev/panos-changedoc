@@ -118,6 +118,9 @@ def _nat_rule(
 
 
 CHANGE_TEMPLATES: dict[str, ChangeTemplate] = {
+    # Each template is a realistic firewall change building block. The GUI
+    # exposes these as before/after checkboxes so a tester can compose XML
+    # pairs without writing PAN-OS XML by hand.
     "security_dest_app01": ChangeTemplate(
         key="security_dest_app01",
         category="security_rules",
@@ -244,29 +247,61 @@ CHANGE_TEMPLATES: dict[str, ChangeTemplate] = {
         key="addr_app01_value",
         category="address_objects",
         description="Address APP01 value changes 10.10.10.20/32 -> 10.10.10.25/32.",
-        before_payload={"name": "APP01", "type": "ip-netmask", "value": "10.10.10.20/32"},
-        after_payload={"name": "APP01", "type": "ip-netmask", "value": "10.10.10.25/32"},
+        before_payload={
+            "name": "APP01",
+            "type": "ip-netmask",
+            "value": "10.10.10.20/32",
+        },
+        after_payload={
+            "name": "APP01",
+            "type": "ip-netmask",
+            "value": "10.10.10.25/32",
+        },
     ),
     "addr_app01_old": ChangeTemplate(
         key="addr_app01_old",
         category="address_objects",
         description="Address APP01-OLD used for remove tests.",
-        before_payload={"name": "APP01-OLD", "type": "ip-netmask", "value": "10.10.10.20/32"},
-        after_payload={"name": "APP01-OLD", "type": "ip-netmask", "value": "10.10.10.20/32"},
+        before_payload={
+            "name": "APP01-OLD",
+            "type": "ip-netmask",
+            "value": "10.10.10.20/32",
+        },
+        after_payload={
+            "name": "APP01-OLD",
+            "type": "ip-netmask",
+            "value": "10.10.10.20/32",
+        },
     ),
     "addr_app02": ChangeTemplate(
         key="addr_app02",
         category="address_objects",
         description="Address APP02 baseline object.",
-        before_payload={"name": "APP02", "type": "ip-netmask", "value": "10.10.10.30/32"},
-        after_payload={"name": "APP02", "type": "ip-netmask", "value": "10.10.10.30/32"},
+        before_payload={
+            "name": "APP02",
+            "type": "ip-netmask",
+            "value": "10.10.10.30/32",
+        },
+        after_payload={
+            "name": "APP02",
+            "type": "ip-netmask",
+            "value": "10.10.10.30/32",
+        },
     ),
     "addr_app03": ChangeTemplate(
         key="addr_app03",
         category="address_objects",
         description="Address APP03 used for add tests.",
-        before_payload={"name": "APP03", "type": "ip-netmask", "value": "10.10.10.40/32"},
-        after_payload={"name": "APP03", "type": "ip-netmask", "value": "10.10.10.40/32"},
+        before_payload={
+            "name": "APP03",
+            "type": "ip-netmask",
+            "value": "10.10.10.40/32",
+        },
+        after_payload={
+            "name": "APP03",
+            "type": "ip-netmask",
+            "value": "10.10.10.40/32",
+        },
     ),
     "addr_app01_new": ChangeTemplate(
         key="addr_app01_new",
@@ -419,6 +454,7 @@ CHANGE_TEMPLATES: dict[str, ChangeTemplate] = {
 
 
 def default_spec() -> dict[str, Any]:
+    """Return the default deterministic generator scenario."""
     return {
         "version": 1,
         "panos_version": "12.1",
@@ -445,6 +481,7 @@ def default_spec() -> dict[str, Any]:
 
 
 def load_spec(path: str) -> dict[str, Any]:
+    """Load and validate a YAML generator spec from disk."""
     p = Path(path)
     raw = p.read_text(encoding="utf-8")
     try:
@@ -501,8 +538,7 @@ def _validate_unknown_keys(spec: dict[str, Any]) -> None:
                             f"{', '.join(unknown)}."
                         ),
                         solution=(
-                            "Allowed keys are: key, before, after. "
-                            "Remove unknown keys."
+                            "Allowed keys are: key, before, after. Remove unknown keys."
                         ),
                     )
                 )
@@ -527,18 +563,14 @@ def _validate_spec_shape(spec: dict[str, Any]) -> None:
             ValidationIssue(
                 message=f"profile '{profile_key}' is not supported.",
                 solution=(
-                    "Set profile to one of: "
-                    + ", ".join(sorted(PROFILES.keys()))
-                    + "."
+                    "Set profile to one of: " + ", ".join(sorted(PROFILES.keys())) + "."
                 ),
             )
         )
     if profile_def and spec.get("panos_version") != profile_def.panos_version:
         issues.append(
             ValidationIssue(
-                message=(
-                    "panos_version does not match profile requirements."
-                ),
+                message=("panos_version does not match profile requirements."),
                 solution=f"Set panos_version: '{profile_def.panos_version}'.",
             )
         )
@@ -576,12 +608,8 @@ def _validate_spec_shape(spec: dict[str, Any]) -> None:
                 if not isinstance(setting.get(side), bool):
                     issues.append(
                         ValidationIssue(
-                            message=(
-                                f"settings[{idx}].{side} must be true or false."
-                            ),
-                            solution=(
-                                f"Set settings[{idx}].{side}: true or false."
-                            ),
+                            message=(f"settings[{idx}].{side} must be true or false."),
+                            solution=(f"Set settings[{idx}].{side}: true or false."),
                         )
                     )
     if issues:
@@ -640,9 +668,7 @@ def _apply_setting(model: dict[str, Any], key: str, payload: dict[str, Any]) -> 
         _upsert(model["zones"], payload)
 
 
-def _order_rules(
-    model: dict[str, Any], category: str, ordering: list[str]
-) -> None:
+def _order_rules(model: dict[str, Any], category: str, ordering: list[str]) -> None:
     source = model[category]
     by_name = {item["name"]: item for item in source}
     ordered: list[dict[str, Any]] = []
@@ -659,6 +685,9 @@ def _order_rules(
 def _build_models_from_spec(
     spec: dict[str, Any],
 ) -> tuple[dict[str, Any], dict[str, Any]]:
+    # Build two independent firewall models from the same template catalog.
+    # A setting can exist only in before, only in after, or in both sides with
+    # different payloads to create a meaningful diff.
     before = _base_model()
     after = _base_model()
 
@@ -704,9 +733,10 @@ def _build_models_from_spec(
     return before, after
 
 
-def _validate_model_logic(
-    before: dict[str, Any], after: dict[str, Any]
-) -> None:
+def _validate_model_logic(before: dict[str, Any], after: dict[str, Any]) -> None:
+    # The generator should only emit XML a standalone firewall would accept
+    # syntactically for the supported v1 sections. Logic errors are hard
+    # failures with operator-facing fix text.
     issues: list[ValidationIssue] = []
 
     def check_unique(model: dict[str, Any], collection: str, label: str) -> None:
@@ -717,8 +747,7 @@ def _validate_model_logic(
                 ValidationIssue(
                     message=f"Duplicate {label} names detected: {', '.join(dupes)}.",
                     solution=(
-                        f"Ensure each {label} has a unique name per configuration "
-                        "side."
+                        f"Ensure each {label} has a unique name per configuration side."
                     ),
                 )
             )
@@ -752,7 +781,11 @@ def _validate_model_logic(
                         )
                     )
             for member in rule["destination"]:
-                if member != "any" and member not in obj_names and member not in grp_names:
+                if (
+                    member != "any"
+                    and member not in obj_names
+                    and member not in grp_names
+                ):
                     issues.append(
                         ValidationIssue(
                             message=(

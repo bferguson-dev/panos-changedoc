@@ -19,10 +19,14 @@ class IdGenerationError(Exception):
 
 
 def build_change_id(change: Change) -> str:
+    """Build a stable ID that survives report reruns for the same change."""
     abbrev = ENTITY_ABBREVIATIONS.get(change.entity_type)
     if abbrev is None:
         raise IdGenerationError(f"Unsupported entity type for ID: {change.entity_type}")
     canonical_payload: dict[str, Any] = {
+        # Only include semantic change content. File paths, timestamps, hashes,
+        # and output locations are intentionally excluded so reruns do not
+        # create different IDs for the same firewall change.
         "id_contract_version": "1.0",
         "change_type": change.change_type,
         "entity_type": change.entity_type,
@@ -31,8 +35,13 @@ def build_change_id(change: Change) -> str:
         "vsys": change.vsys,
         "rulebase": change.rulebase,
         "collection_xpath": change.collection_xpath,
-        "field_changes": [{"path": fc.path, "before": fc.before, "after": fc.after} for fc in change.field_changes],
+        "field_changes": [
+            {"path": fc.path, "before": fc.before, "after": fc.after}
+            for fc in change.field_changes
+        ],
     }
-    canonical_json = json.dumps(canonical_payload, sort_keys=True, separators=(",", ":"))
+    canonical_json = json.dumps(
+        canonical_payload, sort_keys=True, separators=(",", ":")
+    )
     digest16 = hashlib.sha256(canonical_json.encode("utf-8")).hexdigest()[:16]
     return f"chg_{abbrev}_{change.change_type}_{digest16}"

@@ -48,7 +48,17 @@ def test_xml_error_exit_4(tmp_path: Path) -> None:
     b.write_text("<config>", encoding="utf-8")
     a.write_text("<config></config>", encoding="utf-8")
     assert (
-        main(["diff", "--before", str(b), "--after", str(a), "--json", str(tmp_path / "o.json")])
+        main(
+            [
+                "diff",
+                "--before",
+                str(b),
+                "--after",
+                str(a),
+                "--json",
+                str(tmp_path / "o.json"),
+            ]
+        )
         == EXIT_XML
     )
 
@@ -60,7 +70,17 @@ def test_scope_error_exit_5(tmp_path: Path) -> None:
     b.write_text(xml, encoding="utf-8")
     a.write_text(xml, encoding="utf-8")
     assert (
-        main(["diff", "--before", str(b), "--after", str(a), "--json", str(tmp_path / "o.json")])
+        main(
+            [
+                "diff",
+                "--before",
+                str(b),
+                "--after",
+                str(a),
+                "--json",
+                str(tmp_path / "o.json"),
+            ]
+        )
         == EXIT_SCOPE
     )
 
@@ -75,7 +95,17 @@ def test_fatal_parse_error_exit_6(tmp_path: Path) -> None:
     a = tmp_path / "a.xml"
     b.write_text(bad, encoding="utf-8")
     a.write_text(bad, encoding="utf-8")
-    rc = main(["diff", "--before", str(b), "--after", str(a), "--json", str(tmp_path / "o.json")])
+    rc = main(
+        [
+            "diff",
+            "--before",
+            str(b),
+            "--after",
+            str(a),
+            "--json",
+            str(tmp_path / "o.json"),
+        ]
+    )
     assert rc == EXIT_FATAL_PARSE
 
 

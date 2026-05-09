@@ -1,5 +1,7 @@
 import json
 from pathlib import Path
+import shutil
+import subprocess
 
 from panos_changedoc.cli import main
 from panos_changedoc.generate import default_spec
@@ -57,6 +59,21 @@ def test_generate_write_default_spec(tmp_path: Path) -> None:
     rc = main(["generate", "--write-default-spec", str(spec_path)])
     assert rc == 0
     assert spec_path.exists()
+
+
+def test_direct_generator_script_exposes_generate_cli() -> None:
+    python = shutil.which("python3")
+    assert python is not None
+
+    result = subprocess.run(
+        [python, "tools/generate_config.py", "--help"],
+        check=False,
+        capture_output=True,
+        text=True,
+    )
+
+    assert result.returncode == 0
+    assert "usage: panos-changedoc generate" in result.stdout
 
 
 def test_generate_list_templates_yaml(capsys) -> None:

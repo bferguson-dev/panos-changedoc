@@ -1,13 +1,30 @@
 from jsonschema import Draft202012Validator, ValidationError
 
 CHANGE_TYPES = ["added", "removed", "modified", "reordered", "enabled", "disabled"]
-ENTITY_TYPES = ["security_rule", "nat_rule", "address_object", "address_group", "service_object", "zone"]
+ENTITY_TYPES = [
+    "security_rule",
+    "nat_rule",
+    "address_object",
+    "address_group",
+    "service_object",
+    "zone",
+]
 SIGNIFICANCE = ["CRITICAL", "HIGH", "LOW"]
 
 REPORT_SCHEMA = {
     "$schema": "https://json-schema.org/draft/2020-12/schema",
     "type": "object",
-    "required": ["schema_version", "tool", "run", "inputs", "summary", "changes", "warnings", "unsupported", "errors"],
+    "required": [
+        "schema_version",
+        "tool",
+        "run",
+        "inputs",
+        "summary",
+        "changes",
+        "warnings",
+        "unsupported",
+        "errors",
+    ],
     "properties": {
         "schema_version": {"const": "1.0"},
         "tool": {"type": "object", "required": ["name", "version"]},
@@ -21,13 +38,30 @@ REPORT_SCHEMA = {
             "type": "array",
             "items": {
                 "type": "object",
-                "required": ["id", "change_type", "entity", "significance", "title", "fields_changed", "references", "notes"],
+                "required": [
+                    "id",
+                    "change_type",
+                    "entity",
+                    "significance",
+                    "title",
+                    "fields_changed",
+                    "references",
+                    "notes",
+                ],
                 "properties": {
                     "change_type": {"enum": CHANGE_TYPES},
                     "significance": {"enum": SIGNIFICANCE},
                     "entity": {
                         "type": "object",
-                        "required": ["type", "name", "scope", "vsys", "rulebase", "xpath", "collection_xpath"],
+                        "required": [
+                            "type",
+                            "name",
+                            "scope",
+                            "vsys",
+                            "rulebase",
+                            "xpath",
+                            "collection_xpath",
+                        ],
                         "properties": {"type": {"enum": ENTITY_TYPES}},
                     },
                 },
@@ -75,4 +109,6 @@ def validate_manifest(manifest: dict, report: dict) -> None:
     expected = manifest["expected"]["total_changes"]
     actual = report["summary"]["total_changes"]
     if expected != actual:
-        raise ManifestValidationError(f"Manifest expected total_changes={expected}, got {actual}")
+        raise ManifestValidationError(
+            f"Manifest expected total_changes={expected}, got {actual}"
+        )

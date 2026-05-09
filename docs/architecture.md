@@ -20,6 +20,9 @@ No risk linting, policy enforcement, approval workflows, deployment, live firewa
 - `reports/json_report.py`: JSON assembly and emission
 - `reports/markdown.py`: Markdown emission (Epic 8)
 - `cli.py`: command line contract and exit code orchestration
+- `generate.py`: deterministic before/after XML generator
+- `gui.py`: Tkinter wrapper around generator and diff workflows
+- `tools/generate_config.py`: direct helper for generating sample XML
 
 ## Pipeline
 

@@ -56,13 +56,9 @@ def _build_parser() -> argparse.ArgumentParser:
 
     gen_parser = subparsers.add_parser("generate")
     gen_parser.add_argument("--spec")
-    gen_parser.add_argument(
-        "--before-out", default="sample_configs/before.xml"
-    )
+    gen_parser.add_argument("--before-out", default="sample_configs/before.xml")
     gen_parser.add_argument("--after-out", default="sample_configs/after.xml")
-    gen_parser.add_argument(
-        "--manifest-out", default="sample_configs/manifest.json"
-    )
+    gen_parser.add_argument("--manifest-out", default="sample_configs/manifest.json")
     gen_parser.add_argument("--validate-only", action="store_true")
     gen_parser.add_argument("--write-default-spec")
     gen_parser.add_argument("--list-templates", action="store_true")
