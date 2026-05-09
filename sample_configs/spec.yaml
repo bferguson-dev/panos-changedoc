@@ -1,0 +1,52 @@
+version: 1
+panos_version: '12.1'
+profile: standalone_vsys1
+settings:
+- key: security_dest_app01
+  before: true
+  after: true
+- key: security_disable_app02
+  before: true
+  after: true
+- key: security_reorder_pair
+  before: true
+  after: true
+- key: nat_translation_app01
+  before: true
+  after: true
+- key: nat_snat_app02
+  before: true
+  after: true
+- key: nat_reorder_pair
+  before: true
+  after: true
+- key: addr_app01_value
+  before: true
+  after: true
+- key: addr_app01_old
+  before: true
+  after: false
+- key: addr_app02
+  before: true
+  after: true
+- key: addr_app03
+  before: false
+  after: true
+- key: addr_app01_new
+  before: false
+  after: true
+- key: agrp_app_servers
+  before: true
+  after: true
+- key: svc_https
+  before: true
+  after: true
+- key: zone_dmz
+  before: true
+  after: true
+- key: zone_trust
+  before: true
+  after: true
+- key: zone_untrust
+  before: true
+  after: true
