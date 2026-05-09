@@ -50,6 +50,7 @@ def _build_parser() -> argparse.ArgumentParser:
     diff_parser.add_argument("--json")
     diff_parser.add_argument("--markdown")
     diff_parser.add_argument("--out")
+    diff_parser.add_argument("--evidence-bundle")
     diff_parser.add_argument("--manifest")
     diff_parser.add_argument("--quiet", action="store_true")
     diff_parser.add_argument("--verbose", action="store_true")
@@ -146,6 +147,7 @@ def main(argv: list[str] | None = None) -> int:
             after=args.after,
             json_out=args.json,
             markdown_out=markdown_out,
+            evidence_bundle=args.evidence_bundle,
             manifest=args.manifest,
             verbose=args.verbose,
             quiet=args.quiet,

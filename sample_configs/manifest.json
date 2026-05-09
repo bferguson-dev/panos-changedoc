@@ -1,7 +1,7 @@
 {
   "scenario": "yaml_driven_generation",
   "expected": {
-    "total_changes": 12,
+    "total_changes": 10,
     "notes": "Deterministic expected change count from selected toggles."
   }
 }

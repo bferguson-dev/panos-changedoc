@@ -53,6 +53,42 @@ The JSON report is stable and schema-validated. Use it for:
 The JSON report includes file hashes, detected firewall scope, summary counts,
 changes, warnings, unsupported sections, and errors.
 
+## Evidence Bundle Mode
+
+Evidence bundle mode writes a zip file that can be attached to a ticket:
+
+```bash
+panos-changedoc diff \
+  --before before.xml \
+  --after after.xml \
+  --evidence-bundle evidence/change-001.zip
+```
+
+The zip contains copied inputs, JSON and Markdown reports, an evidence
+manifest, and `SHA256SUMS`. This makes it easier to prove which files were
+compared and which report was generated from them.
+
+## GUI Diff Results
+
+The GUI diff panel shows the same report content in a plain text review view.
+While a diff is running, the Diff tab shows two progress bars:
+
+- Current task progress
+- Overall run progress
+
+The results panel also records each current task and completed step. After
+completion, click `View Results` to replace the progress trail with detailed
+report output.
+
+After a successful diff, the detailed results include:
+
+- Input files and SHA256 hashes
+- Scope and generation time
+- Change counts
+- Each change title, ID, significance, entity, rulebase, and XPath
+- Field-level before and after values when a field was modified
+- Reference impact, warnings, unsupported sections, and output file paths
+
 ## Change IDs
 
 Each change record has a deterministic ID such as:

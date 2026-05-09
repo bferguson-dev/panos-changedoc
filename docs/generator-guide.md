@@ -85,8 +85,9 @@ only that it produced syntactically valid output.
 
 ## GUI Relationship
 
-The Tkinter GUI uses the same template catalog and validation logic as the CLI.
-The GUI checkboxes are just a visual way to build the same YAML settings model.
+The Tkinter GUI `Test Generator` tab uses the same template catalog and
+validation logic as the CLI. The GUI checkboxes are just a visual way to build
+the same YAML settings model.
 
 This keeps future additions simple: add a template to the catalog, and both CLI
 and GUI workflows can expose it.
