@@ -75,6 +75,23 @@
       "fields_changed": [
         "destination"
       ],
+      "field_changes": [
+        {
+          "path": "destination",
+          "before": {
+            "type": "members",
+            "members": [
+              "APP01-OLD"
+            ]
+          },
+          "after": {
+            "type": "members",
+            "members": [
+              "APP01"
+            ]
+          }
+        }
+      ],
       "references": {
         "direct": [],
         "transitive": [],
@@ -98,6 +115,7 @@
       "significance": "CRITICAL",
       "title": "Address object `APP01-OLD` removed",
       "fields_changed": [],
+      "field_changes": [],
       "references": {
         "direct": [],
         "transitive": [],
@@ -131,6 +149,13 @@
       "title": "Address object `APP01` modified",
       "fields_changed": [
         "value"
+      ],
+      "field_changes": [
+        {
+          "path": "value",
+          "before": "10.10.10.20/32",
+          "after": "10.10.10.25/32"
+        }
       ],
       "references": {
         "direct": [
@@ -174,6 +199,7 @@
       "fields_changed": [
         "order"
       ],
+      "field_changes": [],
       "references": {
         "direct": [],
         "transitive": [],

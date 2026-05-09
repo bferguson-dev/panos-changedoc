@@ -49,8 +49,18 @@ Every change requires:
 - `significance`: one of `CRITICAL`, `HIGH`, `LOW`
 - `title`
 - `fields_changed` (list, may be empty)
+- `field_changes` (list of before/after details, may be empty)
 - `references` object
 - `notes` (list)
+
+`field_changes` entries include:
+
+- `path`: normalized changed field path
+- `before`: normalized before value
+- `after`: normalized after value
+
+For `added` and `removed` records, use `snapshot` for the full normalized
+entity state.
 
 `entity` requires:
 

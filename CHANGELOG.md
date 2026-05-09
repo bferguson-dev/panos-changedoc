@@ -12,6 +12,15 @@ JSON schema version for report compatibility.
 - Firewall-engineer-facing user documentation.
 - Versioning policy documentation.
 - Generator and validation documentation.
+- Verbose GUI diff results with change details and before/after field values.
+- JSON `field_changes` entries for changed field before/after details.
+- Evidence bundle zip mode with copied inputs, reports, manifest, and `SHA256SUMS`.
+- Background GUI diff execution with progress bar, progress trail, and a
+  post-run `View Results` button.
+- Second GUI progress bar for current-task progress while the lower bar tracks
+  overall run progress.
+- Diff tab now appears before the `Test Generator` tab.
+- Generator templates load lazily to reduce initial GUI startup time.
 
 ### Changed
 

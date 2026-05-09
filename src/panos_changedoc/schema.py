@@ -45,6 +45,7 @@ REPORT_SCHEMA = {
                     "significance",
                     "title",
                     "fields_changed",
+                    "field_changes",
                     "references",
                     "notes",
                 ],

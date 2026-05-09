@@ -43,6 +43,10 @@ def _change_record(change: Change) -> dict:
         "significance": change.significance,
         "title": change.title,
         "fields_changed": list(change.fields_changed),
+        "field_changes": [
+            {"path": fc.path, "before": fc.before, "after": fc.after}
+            for fc in change.field_changes
+        ],
         "references": {
             "direct": [],
             "transitive": [],

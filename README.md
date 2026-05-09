@@ -14,6 +14,17 @@ inside the supported PAN-OS XML scope.
 
 Current release: `0.1.0`
 
+## Screenshots
+
+UI screenshots will be added here later.
+
+This section is reserved for:
+
+- Main GUI layout
+- Test Generator tab
+- Diff tab
+- Evidence bundle workflow
+
 ## Supported Scope
 
 Version `0.1.0` supports standalone firewall exports with one device entry and
@@ -61,6 +72,20 @@ panos-changedoc diff \
 Exit code `0` means the report was written. Warnings and `CRITICAL` changes do
 not make the command fail.
 
+## Create An Evidence Bundle
+
+Use evidence bundle mode when you want one zip file to attach to a change ticket:
+
+```bash
+panos-changedoc diff \
+  --before sample_configs/before.xml \
+  --after sample_configs/after.xml \
+  --evidence-bundle evidence/change-001.zip
+```
+
+The zip contains copied inputs, JSON and Markdown reports, an evidence
+manifest, and `SHA256SUMS`.
+
 ## Generate Test XML
 
 The generator creates deterministic before/after XML pairs for testing the diff
@@ -99,8 +124,12 @@ panos-changedoc gui
 
 The Tkinter GUI has:
 
-- A generator tab with before/after checkboxes for each template
+- A Test Generator tab with before/after checkboxes for each template
 - A diff tab with a Run Diff button
+- Verbose on-screen diff results with field-level before/after values
+- Two progress bars while the diff runs: current task and overall progress
+- A completed-work trail in the results window while the job runs
+- A View Results button after the report is ready
 - Test mode that generates XML before running the diff
 - Validation messages written for firewall operators
 
@@ -119,6 +148,7 @@ exits with code `2`.
 ## Documentation
 
 - [User guide](docs/user-guide.md)
+- [Evidence bundle mode](docs/evidence-bundle.md)
 - [Generator guide](docs/generator-guide.md)
 - [Validation and limits](docs/validation-and-limits.md)
 - [Versioning](docs/versioning.md)
