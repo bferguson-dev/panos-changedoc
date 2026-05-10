@@ -12,7 +12,7 @@ The tool does not connect to a firewall. It does not push config, approve
 changes, score risk, or replace firewall review. It only documents what changed
 inside the supported PAN-OS XML scope.
 
-Current release: `0.1.0`
+Current release: `0.1.1`
 
 ## Screenshots
 
@@ -27,7 +27,7 @@ This section is reserved for:
 
 ## Supported Scope
 
-Version `0.1.0` supports standalone firewall exports with one device entry and
+Version `0.1.1` supports standalone firewall exports with one device entry and
 `vsys1`.
 
 Supported sections:
