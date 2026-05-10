@@ -28,6 +28,20 @@ JSON schema version for report compatibility.
 - Added operational comments around PAN-OS parsing, diff, generator, and ID
   logic.
 
+## [0.1.1] - 2026-05-10
+
+### Added
+
+- Screenshots section placeholder in the README for future UI images.
+- Evidence bundle zip mode with GUI callouts for bundle creation and zipping.
+
+### Changed
+
+- Bumped the package version to `0.1.1`.
+- Updated README and documentation to reflect the current release and UI
+  workflow.
+- Refined GUI progress messaging, tab order, and lazy loading behavior.
+
 ## [0.1.0] - 2026-05-09
 
 ### Added

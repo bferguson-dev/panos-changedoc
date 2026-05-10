@@ -2,7 +2,7 @@
 
 PAN-OS ChangeDoc tracks two different versions:
 
-- Package version: the Python tool release, currently `0.1.0`
+- Package version: the Python tool release, currently `0.1.1`
 - JSON schema version: the report contract, currently `1.0`
 
 These versions move independently.
@@ -33,7 +33,7 @@ The JSON report includes the package version under:
 ```json
 "tool": {
   "name": "panos-changedoc",
-  "version": "0.1.0"
+  "version": "0.1.1"
 }
 ```
 
@@ -75,3 +75,5 @@ pytest
 
 - `0.1.0`: initial MVP release with offline diff, Markdown and JSON reports,
   deterministic generator, GUI wrapper, and test coverage.
+- `0.1.1`: documentation refresh, evidence bundle zip support, and GUI
+  usability refinements.
