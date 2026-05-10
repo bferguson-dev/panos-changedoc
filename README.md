@@ -20,15 +20,15 @@ The screenshots below show the current GUI layout and the two main workflows.
 
 ### Diff Tab
 
-![Diff tab](/home/bferguson-dev/diff.png)
+![Diff tab](docs/screenshots/diff.png)
 
 ### Diff Results
 
-![Diff results](/home/bferguson-dev/diff_results.png)
+![Diff results](docs/screenshots/diff_results.png)
 
 ### Test Generator
 
-![Test generator](/home/bferguson-dev/test.png)
+![Test generator](docs/screenshots/test.png)
 
 ## Supported Scope
 
