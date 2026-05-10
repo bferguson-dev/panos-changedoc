@@ -16,14 +16,19 @@ Current release: `0.1.1`
 
 ## Screenshots
 
-UI screenshots will be added here later.
+The screenshots below show the current GUI layout and the two main workflows.
 
-This section is reserved for:
+### Diff Tab
 
-- Main GUI layout
-- Test Generator tab
-- Diff tab
-- Evidence bundle workflow
+![Diff tab](/home/bferguson-dev/diff.png)
+
+### Diff Results
+
+![Diff results](/home/bferguson-dev/diff_results.png)
+
+### Test Generator
+
+![Test generator](/home/bferguson-dev/test.png)
 
 ## Supported Scope
 
